@@ -19,7 +19,7 @@ VERSION=$(git describe --tags)
 LDFLAGS="-X main.VERSION=$VERSION -s -w"
 GCFLAGS=""
 
-OSES=(linux darwin windows freebsd)
+OSES=(linux darwin windows)
 ARCHS=(amd64 386)
 
 mkdir bin
@@ -31,6 +31,10 @@ for os in ${OSES[@]}; do
 		then
 			suffix=".exe"
 		fi
+                if [ "$os" == "darwin" -a "$arch" == "386" ]
+                then
+                    continue
+                fi
 		env CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -v -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o v2ray-plugin_${os}_${arch}${suffix}
 		$upx v2ray-plugin_${os}_${arch}${suffix} >/dev/null
 		tar -zcf bin/v2ray-plugin-${os}-${arch}-$VERSION.tar.gz v2ray-plugin_${os}_${arch}${suffix}
